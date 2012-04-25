@@ -6,6 +6,11 @@
           lifeguard_app,
           lifeguard_sup
       ]},
+  {modules, [
+          lifeguard_app,
+          lifeguard_sup,
+          lifeguard_ds_garbage
+      ]},
   {applications, [
                   kernel,
                   stdlib,

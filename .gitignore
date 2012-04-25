@@ -1,5 +1,6 @@
 deps/
 dist/
 ebin/
+rel/lifeguard/
 .eunit/
 *.beam
