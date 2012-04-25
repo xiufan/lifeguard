@@ -2,10 +2,14 @@
  [
   {description, ""},
   {vsn, "1"},
-  {registered, []},
+  {registered, [
+          lifeguard_app,
+          lifeguard_sup
+      ]},
   {applications, [
                   kernel,
-                  stdlib
+                  stdlib,
+                  lager
                  ]},
   {mod, { lifeguard_app, []}},
   {env, []}
