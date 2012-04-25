@@ -3,7 +3,7 @@
 
 -module(lifeguard_ds_garbage).
 -behavior(gen_server).
--export([start_link/1]).
+-export([start_link/2]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -ifdef(TEST).
@@ -11,16 +11,19 @@
 -endif.
 
 %% @doc Start the data source in a supervision tree.
-start_link(_Config) ->
-    gen_server:start_link(?MODULE, [], []).
+start_link(Name, _Args) ->
+    ServerRef = list_to_atom("ds_" ++ Name),
+    gen_server:start_link({local, ServerRef}, ?MODULE, [], []).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% gen_server callbacks
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-init(_Args) -> {ok, any}.
+init(_Args) ->
+    lager:info("Started the garbage data source..."),
+    {ok, any}.
 
-handle_call({get, Amount}, _From, State) ->
+handle_call({get, [Amount]}, _From, State) ->
     {reply, get_numbers(Amount), State}.
 
 handle_cast(_Request, State) -> {noreply, State}.

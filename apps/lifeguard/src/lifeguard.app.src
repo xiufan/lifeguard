@@ -9,7 +9,9 @@
   {modules, [
           lifeguard_app,
           lifeguard_sup,
-          lifeguard_ds_garbage
+          lifeguard_ds_garbage,
+          lifeguard_ds_manager,
+          lifeguard_ds_manager_sup
       ]},
   {applications, [
                   kernel,
@@ -17,5 +19,7 @@
                   lager
                  ]},
   {mod, { lifeguard_app, []}},
-  {env, []}
+  {env, [
+          {data_sources, [{"garbage", lifeguard_ds_garbage, []}]}
+      ]}
  ]}.

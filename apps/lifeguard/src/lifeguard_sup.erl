@@ -1,4 +1,3 @@
-
 -module(lifeguard_sup).
 
 -behaviour(supervisor).
@@ -24,5 +23,9 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, []} }.
-
+    {ok, DataSources} = application:get_env(data_sources),
+    DSManager = {data_store_manager_sup,
+        {lifeguard_ds_manager_sup, start_link, [DataSources]},
+        permanent, 30000, supervisor, [lifeguard_ds_manager_sup]},
+    Children = [DSManager],
+    {ok, { {one_for_one, 5, 10}, Children} }.
