@@ -26,6 +26,7 @@ init([Number]) ->
 
     % Create a new V8 VM
     {ok, VM} = erlv8_vm:start(),
+    init_vm_globals(VM),
 
     State = #vm_state{
         id = Number,
@@ -47,3 +48,15 @@ terminate(_Reason, State) ->
     erlv8_vm:stop(State#vm_state.vm).
 
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Internal functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+init_vm_globals(VM) ->
+    % Load our builtins
+    Path = filename:join(code:priv_dir(lifeguard), "builtins.js"),
+    {ok, JSData} = file:read_file(Path),
+
+    % Add the builtins to this VM runtime
+    {ok, _} = erlv8_vm:run(VM, binary_to_list(JSData)).
