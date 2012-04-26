@@ -18,6 +18,8 @@ init(StoragePath) ->
             {auto_save, 60000}
         ]),
 
+    % Log it out and start
+    lager:info("Watch manager started. Storage path: ~p", [StoragePath]),
     {ok, no_state}.
 
 handle_call(_Request, _From, State) -> {noreply, State}.
@@ -27,6 +29,7 @@ handle_cast(_Request, State) -> {noreply, State}.
 handle_info(_Request, State) -> {noreply, State}.
 
 terminate(_Reason, _State) ->
+    lager:info("Watch manager terminated."),
     ok = dets:close(table).
 
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
