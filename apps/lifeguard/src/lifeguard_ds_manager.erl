@@ -19,9 +19,19 @@ get(SourceName, Args) ->
 init(_Args) -> {ok, no_state}.
 
 handle_call({get, SourceName, Args}, _From, State) ->
+    % Get the atom that would represent the locally registered name
+    % of this data source.
     SourceRef = list_to_atom("ds_" ++ SourceName),
-    {ok, Response} = gen_server:call(SourceRef, {get, Args}),
-    {reply, {ok, Response}, State}.
+
+    % Attempt to call onto this data source. Note that if an invalid
+    % data source was given, this will raise a `noproc` exception, so
+    % we catch that and return a nice error.
+    Response = try gen_server:call(SourceRef, {get, Args})
+    catch
+        exit: {noproc, _} -> {error, no_data_source}
+    end,
+
+    {reply, Response, State}.
 
 handle_cast(_Request, State) -> {noreply, State}.
 
