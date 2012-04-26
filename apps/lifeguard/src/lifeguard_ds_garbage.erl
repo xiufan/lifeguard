@@ -24,7 +24,7 @@ init(_Args) ->
     {ok, any}.
 
 handle_call({get, [Amount]}, _From, State) ->
-    {reply, get_numbers(Amount), State}.
+    {reply, {ok, get_numbers(Amount)}, State}.
 
 handle_cast(_Request, State) -> {noreply, State}.
 
