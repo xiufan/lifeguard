@@ -14,6 +14,7 @@
                  ]},
   {mod, { lifeguard_app, []}},
   {env, [
-          {data_sources, [{"garbage", lifeguard_ds_garbage, []}]}
+          {data_sources, [{"garbage", lifeguard_ds_garbage, []}]},
+          {js_vm_count, 8}
       ]}
  ]}.

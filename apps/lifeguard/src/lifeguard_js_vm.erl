@@ -22,7 +22,7 @@ start_link(Number) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 init([Number]) ->
-    lager:info("JS VM started: ~d", [Number]),
+    lager:info("JS VM started: ~p", [Number]),
 
     % Create a new V8 VM
     {ok, VM} = erlv8_vm:start(),

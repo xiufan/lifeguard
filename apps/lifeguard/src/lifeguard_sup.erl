@@ -24,6 +24,7 @@ start_link() ->
 
 init([]) ->
     % Get the data sources from the application configuration
+    {ok, JsVMCount}   = application:get_env(js_vm_count),
     {ok, DataSources} = application:get_env(data_sources),
 
     % Run the data store manager supervisor
@@ -31,6 +32,11 @@ init([]) ->
         {lifeguard_ds_manager_sup, start_link, [DataSources]},
         permanent, 30000, supervisor, [lifeguard_ds_manager_sup]},
 
+    % JS VM manager supervisor
+    JsManager = {js_manager_sup,
+        {lifeguard_js_manager_sup, start_link, [JsVMCount]},
+        permanent, 30000, supervisor, dynamic},
+
     % Return the full spec
-    Children = [DSManager],
+    Children = [DSManager, JsManager],
     {ok, { {one_for_one, 5, 10}, Children} }.
