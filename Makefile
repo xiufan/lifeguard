@@ -8,6 +8,7 @@ clean:
 
 deps:
 	./rebar get-deps
+	cd deps/erlv8 && make
 
 rel: compile
 	./rebar generate -f

@@ -6,17 +6,11 @@
           lifeguard_app,
           lifeguard_sup
       ]},
-  {modules, [
-          lifeguard_app,
-          lifeguard_sup,
-          lifeguard_ds_garbage,
-          lifeguard_ds_manager,
-          lifeguard_ds_manager_sup
-      ]},
   {applications, [
                   kernel,
                   stdlib,
-                  lager
+                  lager,
+                  erlv8
                  ]},
   {mod, { lifeguard_app, []}},
   {env, [
