@@ -31,10 +31,14 @@ setup() ->
         source_pid=SourcePid
     }.
 
-teardown(#test_state{manager=ManagerPid}) ->
+teardown(#test_state{manager=ManagerPid, source_pid=SourcePid}) ->
     % Cleanup the manager
     unlink(ManagerPid),
-    exit(ManagerPid, normal).
+    exit(ManagerPid, normal),
+
+    % Cleanup the source
+    unlink(SourcePid),
+    exit(SourcePid, normal).
 
 test_call_bad_source(_State) ->
     ?_test({error, no_data_source} = ?TEST_MODULE:get("this_is_a_bad_name", [])).
