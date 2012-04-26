@@ -24,6 +24,7 @@ init(_Args) ->
     {ok, any}.
 
 handle_call({get, [Amount]}, _From, State) ->
+    lager:debug("Get: ~p", [Amount]),
     {reply, {ok, get_numbers(Amount)}, State}.
 
 handle_cast(_Request, State) -> {noreply, State}.
@@ -45,6 +46,9 @@ get_numbers(Amount) ->
 
 handle_get_test() ->
     Result = get_numbers(5),
-    ?assert(length(Result) =:= 5).
+    ?assert(length(Result) =:= 5),
+
+    Result2 = get_numbers(10),
+    ?assert(length(Result2) =:= 10).
 
 -endif.
