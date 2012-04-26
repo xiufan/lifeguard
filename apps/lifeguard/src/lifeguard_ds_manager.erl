@@ -28,7 +28,9 @@ handle_call({get, SourceName, Args}, _From, State) ->
     % we catch that and return a nice error.
     Response = try gen_server:call(SourceRef, {get, Args})
     catch
-        exit: {noproc, _} -> {error, no_data_source}
+        exit: {noproc, _} ->
+            lager:error("Invalid data source called: ~p", [SourceName]),
+            {error, no_data_source}
     end,
 
     {reply, Response, State}.
