@@ -41,7 +41,7 @@ teardown(#test_state{manager=ManagerPid, source_pid=SourcePid}) ->
     exit(SourcePid, normal).
 
 test_call_bad_source(_State) ->
-    ?_test({error, no_data_source} = ?TEST_MODULE:get("this_is_a_bad_name", [])).
+    fun() -> {error, no_data_source} = ?TEST_MODULE:get("this_is_a_bad_name", []) end.
 
 test_call_good_source(#test_state{source_name=Source}) ->
-    ?_test({ok, result} = ?TEST_MODULE:get(Source, [result])).
+    fun() -> {ok, result} = ?TEST_MODULE:get(Source, [result]) end.
