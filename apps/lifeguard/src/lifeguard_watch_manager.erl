@@ -1,6 +1,6 @@
 -module(lifeguard_watch_manager).
 -behavior(gen_server).
--export([start_link/1]).
+-export([start_link/1, delete_watch/1, get_watch/1, set_watch/3]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -record(watch, {
@@ -19,6 +19,35 @@
 start_link(StoragePath) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, StoragePath, []).
 
+%% @doc Delete a watch out of the system.
+-spec delete_watch(string()) -> ok.
+delete_watch(Name) ->
+    gen_server:call(?MODULE, {delete, Name}).
+
+%% @doc Add a watch to the system. This will persist the watch into the
+%% backing storage. If the watch already exists then this will update it,
+%% otherwise a new watch will be created.
+-spec set_watch(string(), string(), pos_integer()) -> ok | {error, term()}.
+set_watch(Name, Code, Interval) ->
+    Watch = #watch{
+            name = Name,
+            code = Code,
+            interval = Interval
+            },
+    gen_server:call(?MODULE, {set, Watch}).
+
+%% @doc Get a watch out of the system.
+-spec get_watch(string()) -> {ok, {string(), string(), pos_integer()}} | {error, term()}.
+get_watch(Name) ->
+    case gen_server:call(?MODULE, {get, Name}) of
+        {ok, Watch} when is_record(Watch, watch) ->
+            Name = Watch#watch.name,
+            Code = Watch#watch.code,
+            Interval = Watch#watch.interval,
+            {ok, {Name, Code, Interval}};
+        {error, Reason} -> {error, Reason}
+    end.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% gen_server callbacks
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -34,7 +63,15 @@ init(StoragePath) ->
     lager:info("Watch manager started. Storage path: ~p", [StoragePath]),
     {ok, no_state}.
 
-handle_call(_Request, _From, State) -> {noreply, State}.
+handle_call({delete, Name}, _From, State) ->
+    lager:info("Delete watch: ~p~n", [Name]),
+    {reply, internal_delete_watch(Name), State};
+handle_call({get, Name}, _From, State) ->
+    lager:info("Getting watch: ~p~n", [Name]),
+    {reply, internal_get_watch(Name), State};
+handle_call({set, Watch}, _From, State) when is_record(Watch, watch) ->
+    lager:info("Setting watch: ~p~n", [Watch#watch.name]),
+    {reply, internal_set_watch(Watch), State}.
 
 handle_cast(_Request, State) -> {noreply, State}.
 
@@ -50,18 +87,18 @@ code_change(_OldVsn, State, _Extra) -> {ok, State}.
 % Internal methods
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-delete_watch(Name) ->
+internal_delete_watch(Name) ->
     dets:delete(?TABLE_NAME, Name).
 
-get_watch(Name) ->
+internal_get_watch(Name) ->
     case dets:lookup(?TABLE_NAME, Name) of
         [] -> {error, no_watch};
         [{Name, Watch}] -> {ok, Watch}
     end.
 
-set_watch(#watch{name=Name} = Watch) ->
+internal_set_watch(#watch{name=Name} = Watch) ->
     dets:insert(?TABLE_NAME, {Name, Watch});
-set_watch(_) ->
+internal_set_watch(_) ->
     {error, invalid_watch}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -79,7 +116,8 @@ main_test_() ->
             fun test_delete_watch_nonexistent/1,
             fun test_get_watch_nonexistent/1,
             fun test_set_watch_invalid/1,
-            fun test_set_and_get_watch/1
+            fun test_set_and_get_watch/1,
+            fun test_update_watch/1
         ]}.
 
 setup() ->
@@ -98,32 +136,49 @@ test_delete_watch(_) ->
     fun() ->
             Name = "key",
             Watch = #watch{name=Name},
-            ok = set_watch(Watch),
-            ok = delete_watch(Name),
-            {error, no_watch} = get_watch(Name)
+            ok = internal_set_watch(Watch),
+            ok = internal_delete_watch(Name),
+            {error, no_watch} = internal_get_watch(Name)
     end.
 
 test_delete_watch_nonexistent(_) ->
     fun() ->
-            ok = delete_watch("nope")
+            ok = internal_delete_watch("nope")
     end.
 
 test_get_watch_nonexistent(_) ->
     fun() ->
-            {error, no_watch} = get_watch("no good")
+            {error, no_watch} = internal_get_watch("no good")
     end.
 
 test_set_watch_invalid(_) ->
     fun() ->
-            {error, invalid_watch} = set_watch("NOT A WATCH!")
+            {error, invalid_watch} = internal_set_watch("NOT A WATCH!")
     end.
 
 test_set_and_get_watch(_) ->
     fun() ->
             Name  = "key",
             Watch = #watch{name=Name},
-            ok = set_watch(Watch),
-            {ok, Watch} = get_watch(Name)
+            ok = internal_set_watch(Watch),
+            {ok, Watch} = internal_get_watch(Name)
+    end.
+
+test_update_watch(_) ->
+    fun() ->
+            Name = "key",
+            Watch = #watch{name=Name, interval=1},
+
+            % Set the initial watch
+            ok = internal_set_watch(Watch),
+
+             % Update it
+            ok = internal_set_watch(Watch#watch{interval=2}),
+
+            % Check the result
+            {ok, Result} = internal_get_watch(Name),
+
+            ?assertEqual(2, Result#watch.interval)
     end.
 
 -endif.
