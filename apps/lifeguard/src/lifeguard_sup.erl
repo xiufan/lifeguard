@@ -27,6 +27,18 @@ init([]) ->
     {ok, DataSources} = application:get_env(data_sources),
     {ok, JsVMCount}   = application:get_env(js_vm_count),
     {ok, StoragePath} = application:get_env(storage_path),
+    {ok, HTTPIP}      = application:get_env(http_ip),
+    {ok, HTTPPort}    = application:get_env(http_port),
+
+    % Get the configuration for the web API
+    DispatchPath   = filename:join(code:priv_dir(lifeguard), "dispatch.config"),
+    {ok, Dispatch} = file:consult(DispatchPath),
+    WebConfig = [
+            {ip, HTTPIP},
+            {port, HTTPPort},
+            {backlog, 128},
+            {dispatch, Dispatch}
+            ],
 
     % Run the data store manager supervisor
     DSManager = {data_store_manager_sup,
@@ -43,6 +55,11 @@ init([]) ->
         {lifeguard_watch_manager, start_link, [StoragePath]},
         permanent, 30000, worker, dynamic},
 
+    % Web interface
+    Web = {webmachine_mochiweb,
+           {webmachine_mochiweb, start, [WebConfig]},
+           permanent, 30000, worker, dynamic},
+
     % Return the full spec
-    Children = [DSManager, JsManager, WatchManager],
+    Children = [DSManager, JsManager, WatchManager, Web],
     {ok, { {one_for_one, 5, 10}, Children} }.
