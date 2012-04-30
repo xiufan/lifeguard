@@ -32,3 +32,9 @@
     border-color: #FBEED5;
     color: #C09853;
 }
+
+.Module.page .page-header {
+    padding-bottom: 10px;
+    margin: 0 0 13px 0;
+    border-bottom: 1px solid #EEE;
+}

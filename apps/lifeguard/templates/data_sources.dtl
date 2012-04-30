@@ -1,5 +1,16 @@
 {% extends "base.dtl" %}
 
 {% block body %}
-Hello!
+<div class="container">
+	<div class="Module page">
+		<div class="page-header">
+			<h1>Data Sources</h1>
+		</div>
+		<p>
+		Below is a list of the configured and running data sources. Data sources
+		provide the data that the watches then use to determine the health of
+		some system.
+		</p>
+	</div>
+</div>
 {% endblock %}
