@@ -48,6 +48,8 @@ resource_exists(ReqData, Context) ->
             BinName  = list_to_binary(Context#state.ds_name),
             Response = wrq:set_resp_body(<<"Data source not found: ", BinName/binary>>, ReqData),
             {false, Response, Context};
+        {error, Other} ->
+            {{error, Other}, ReqData, Context};
         Result ->
             {true, ReqData, Context#state{result=Result}}
     end.
