@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css" />
+		<link rel="stylesheet" type="text/css" href="/static/css/lifeguard.css" />
+	</head>
+	<body>
+		<div class="navbar">
+			<div class="navbar-inner">
+				<div class="container">
+					<a class="brand" href="#">Lifeguard</a>
+
+					<ul class="nav">
+						<li><a href="/">Dashboard</a></li>
+						<li><a href="#">Data Sources</a></li>
+						<li><a href="#">Watches</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		{% block body %}{% endblock %}
+	</body>
+</html>

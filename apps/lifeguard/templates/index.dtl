@@ -1,5 +1,16 @@
-<html>
-<body>
-HELLO WORLD!
-</body>
-</html>
+{% extends "base.dtl" %}
+
+{% block body %}
+<div class="Module dashboard">
+	<div class="unit healthy">Foo</div>
+	<div class="unit healthy">Bar</div>
+	<div class="unit unhealthy">Bar</div>
+	<div class="unit healthy">Bar</div>
+	<div class="unit unknown">Bar</div>
+	<div class="unit healthy">Bar</div>
+	<div class="unit healthy">Bar</div>
+	<div class="unit unhealthy">Bar</div>
+	<div class="unit healthy">Bar</div>
+	<div class="unit healthy">Bar</div>
+</div>
+{% endblock %}
