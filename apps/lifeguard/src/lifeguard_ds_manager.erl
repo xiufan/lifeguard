@@ -8,7 +8,7 @@ start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 %% @doc Get data from a data source.
--spec get(string(), [term()]) -> {ok, term()}.
+-spec get(string(), [term()]) -> {ok, term()} | {error, term()}.
 get(SourceName, Args) ->
     gen_server:call(?MODULE, {get, SourceName, Args}).
 
@@ -30,7 +30,10 @@ handle_call({get, SourceName, Args}, _From, State) ->
     catch
         exit: {noproc, _} ->
             lager:error("Invalid data source called: ~p", [SourceName]),
-            {error, no_data_source}
+            {error, no_data_source};
+        exit: _ ->
+            lager:error("Internal error in data source: ~p", [SourceName]),
+            {error, data_source_error}
     end,
 
     {reply, Response, State}.

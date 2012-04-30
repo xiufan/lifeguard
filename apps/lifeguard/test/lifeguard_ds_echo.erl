@@ -19,7 +19,11 @@ init(_Args) ->
     lager:info("Started the echo data source..."),
     {ok, any}.
 
+handle_call({get, [crash]}, _From, _State) ->
+    % Purposely crash if we get the "crash" arg
+    ok = not_ok;
 handle_call({get, [Data]}, _From, State) ->
+    % Echo back the data
     {reply, {ok, Data}, State}.
 
 handle_cast(_Request, State) -> {noreply, State}.

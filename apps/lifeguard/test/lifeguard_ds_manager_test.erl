@@ -12,7 +12,8 @@ main_test_() ->
         fun teardown/1,
         [
             fun test_call_bad_source/1,
-            fun test_call_good_source/1
+            fun test_call_good_source/1,
+            fun test_call_good_source_crash/1
         ]}.
 
 setup() ->
@@ -45,3 +46,6 @@ test_call_bad_source(_State) ->
 
 test_call_good_source(#test_state{source_name=Source}) ->
     fun() -> {ok, result} = ?TEST_MODULE:get(Source, [result]) end.
+
+test_call_good_source_crash(#test_state{source_name=Source}) ->
+    fun() -> {error, data_source_error} = ?TEST_MODULE:get(Source, [crash]) end.
