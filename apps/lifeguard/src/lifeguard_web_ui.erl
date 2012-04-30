@@ -9,6 +9,14 @@
 
 -include_lib("webmachine/include/webmachine.hrl").
 
+-ifdef(TEST).
+-include_lib("eunit/include/eunit.hrl").
+-endif.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Webmachine Callbacks
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 init(_) ->
     {ok, #state{}}.
 
@@ -21,9 +29,7 @@ resource_exists(ReqData, Context) ->
         ""    -> "index";
         Other -> Other
     end,
-    BinPath    = list_to_binary(Path),
-    ModuleName = binary:replace(BinPath, <<"/">>, <<"_">>),
-    Module     = binary_to_atom(<<ModuleName/binary, "_dtl">>, utf8),
+    Module = path_to_tpl_module(Path),
 
     % Attempt to call the module. If this fails, then the resource
     % doesn't actually exist.
@@ -36,3 +42,26 @@ resource_exists(ReqData, Context) ->
 to_html(ReqData, Context) ->
     % We just shuttle out the content since we already rendered
     {Context#state.content, ReqData, Context}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Internal Methods
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+-spec path_to_tpl_module(string()) -> atom().
+path_to_tpl_module(Path) ->
+    BinPath    = list_to_binary(Path),
+    ModuleName = binary:replace(BinPath, [<<"/">>, <<"-">>], <<"_">>),
+    binary_to_atom(<<ModuleName/binary, "_dtl">>, utf8).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Tests
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+-ifdef(TEST).
+
+path_to_module_test() ->
+    ?assertEqual(foo_dtl, path_to_tpl_module("foo")),
+    ?assertEqual(foo_bar_dtl, path_to_tpl_module("foo/bar")),
+    ?assertEqual(foo_bar_dtl, path_to_tpl_module("foo-bar")).
+
+-endif.

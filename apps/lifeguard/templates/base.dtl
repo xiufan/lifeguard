@@ -12,7 +12,7 @@
 
 					<ul class="nav">
 						<li><a href="/">Dashboard</a></li>
-						<li><a href="#">Data Sources</a></li>
+						<li><a href="/data-sources">Data Sources</a></li>
 						<li><a href="#">Watches</a></li>
 					</ul>
 				</div>
