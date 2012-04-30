@@ -11,22 +11,29 @@
          resource_exists/2,
          to_response/2]).
 
+-record(state, {
+        directory, % Directory where to load static resources
+        full_path  % Full path to the static resource
+        }).
+
 -include_lib("webmachine/include/webmachine.hrl").
 
-init(_) ->
-    {ok, no_context}.
+init([Directory]) ->
+    {ok, #state{directory=Directory}}.
 
 allowed_methods(ReqData, Context) ->
-    {['GET'], ReqData, Context}.
+    % Since this is the earliest called callback, setup the state
+    Directory = Context#state.directory,
+    ShortPath = wrq:disp_path(ReqData),
+    State = Context#state{full_path=full_resource_path(Directory, ShortPath)},
+    {['GET'], ReqData, State}.
 
 content_types_provided(ReqData, Context) ->
-    StaticPath  = wrq:disp_path(ReqData),
-    ContentType = webmachine_util:guess_mime(StaticPath),
+    ContentType = webmachine_util:guess_mime(Context#state.full_path),
     {[{ContentType, to_response}], ReqData, Context}.
 
 generate_etag(ReqData, Context) ->
-    StaticPath  = wrq:disp_path(ReqData),
-    {ok, Value} = file:read_file(full_resource_path(StaticPath)),
+    {ok, Value} = file:read_file(Context#state.full_path),
     ETag        = hash_body(Value),
 
     % Respond with the ETag
@@ -34,23 +41,16 @@ generate_etag(ReqData, Context) ->
 
 last_modified(ReqData, Context) ->
     % Get the last modified time for the static file
-    FullPath = full_resource_path(wrq:disp_path(ReqData)),
-    LastMod  = filelib:last_modified(FullPath),
+    LastMod  = filelib:last_modified(Context#state.full_path),
     {LastMod, ReqData, Context}.
 
 resource_exists(ReqData, Context) ->
-    % Get the static path...
-    StaticPath = wrq:disp_path(ReqData),
-
     % Expand the file path and check that it exists
-    FullPath = full_resource_path(StaticPath),
-    Exists   = filelib:is_regular(FullPath),
+    Exists   = filelib:is_regular(Context#state.full_path),
     {Exists, ReqData, Context}.
 
 to_response(ReqData, Context) ->
-    % Read the static file
-    StaticPath  = wrq:disp_path(ReqData),
-    {ok, Value} = file:read_file(full_resource_path(StaticPath)),
+    {ok, Value} = file:read_file(Context#state.full_path),
 
     % Push it out!
     {Value, ReqData, Context}.
@@ -59,9 +59,9 @@ to_response(ReqData, Context) ->
 % Internal methods
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
--spec full_resource_path(string()) -> string().
-full_resource_path(ShortPath) ->
-    filename:join([code:priv_dir(lifeguard), "static", ShortPath]).
+-spec full_resource_path(string(), string()) -> string().
+full_resource_path(Directory, ShortPath) ->
+    filename:join([code:priv_dir(lifeguard), Directory, ShortPath]).
 
 -spec hash_body(string()) -> string().
 hash_body(Body) ->
