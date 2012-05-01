@@ -1,0 +1,25 @@
+{% extends "base.dtl" %}
+
+{% block body %}
+<div class="container">
+	<div class="Module page" id="watches">
+		<div class="page-header">
+			<h1>Watches</h1>
+		</div>
+
+		<p>
+		Below is a list of the configured watches.
+		</p>
+
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Interval (ms)</th>
+					<th>Options</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+</div>
+{% endblock %}
