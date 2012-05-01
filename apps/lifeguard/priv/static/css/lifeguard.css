@@ -8,6 +8,31 @@
     font-weight: bold;
 }
 
+ul#data-sources-list {
+    width: 80%;
+}
+
+ul#data-sources-list {
+    margin-top: 20px;
+}
+
+ul#data-sources-list, ul#data-sources-list li {
+    list-style-type: none;
+}
+
+#data-sources-list .unit {
+    font-size: 18px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #EEE;
+}
+
+#data-sources-list .unit:hover {
+    background-color: #EEE;
+    cursor: pointer;
+}
+
 /* Modules */
 .Module.dashboard {
     padding: 10px;

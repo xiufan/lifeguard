@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<title>{% block title %}Lifeguard{% endblock %}</title>
+
 		<link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css" />
 		<link rel="stylesheet" type="text/css" href="/static/css/lifeguard.css" />
 	</head>

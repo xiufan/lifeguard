@@ -2,7 +2,7 @@
 
 {% block body %}
 <div class="container">
-	<div class="Module page" id="data-sources">
+	<div class="Module page data-sources" id="data-sources">
 		<div class="page-header">
 			<h1>Data Sources</h1>
 		</div>
@@ -10,6 +10,9 @@
 		Below is a list of the configured and running data sources. Data sources
 		provide the data that the watches then use to determine the health of
 		some system.
+		</p>
+		<p>
+		Click any data source to test retrieving data from it.
 		</p>
 
 		<div id="data-sources-loading">
@@ -24,7 +27,9 @@
 
 {% block js_templates %}
 <script type="text/template" id="data-source-template">
-<%= name %>
+<div class="unit">
+	<%= name %>
+</div>
 </script>
 {% endblock %}
 
