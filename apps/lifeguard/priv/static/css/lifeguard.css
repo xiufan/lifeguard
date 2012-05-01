@@ -1,7 +1,14 @@
+/* Bootstrap Overrides */
 .navbar-inner {
     border-radius: 0 0 4px 4px;
 }
 
+/* Basic styles */
+#data-sources-loading {
+    font-weight: bold;
+}
+
+/* Modules */
 .Module.dashboard {
     padding: 10px;
 }
