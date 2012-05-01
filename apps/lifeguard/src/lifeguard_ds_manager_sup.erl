@@ -20,13 +20,15 @@ start_link(DataSources) ->
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 init(DataSources) ->
-    % Define the manager...
-    Manager = {data_source_manager,
-        {lifeguard_ds_manager, start_link, []},
-        permanent, 5000, worker, dynamic},
+    SourceNames = [Name || {Name, _, _} <- DataSources],
 
     % Add all the individual sources
     SourceSpecs = [data_source_spec(Source) || Source <- DataSources],
+
+    % Define the manager...
+    Manager = {data_source_manager,
+        {lifeguard_ds_manager, start_link, [SourceNames]},
+        permanent, 5000, worker, dynamic},
 
     {ok, {{one_for_one, 10, 10}, [Manager | SourceSpecs]} }.
 

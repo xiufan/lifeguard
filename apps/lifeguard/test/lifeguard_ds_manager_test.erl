@@ -11,17 +11,18 @@ main_test_() ->
         fun setup/0,
         fun teardown/1,
         [
+            fun test_list/1,
             fun test_call_bad_source/1,
             fun test_call_good_source/1,
             fun test_call_good_source_crash/1
         ]}.
 
 setup() ->
-    ManagerPid = case ?TEST_MODULE:start_link() of
+    SourceName = "echo",
+    ManagerPid = case ?TEST_MODULE:start_link([SourceName]) of
         {ok, Pid} -> Pid;
         {error, {already_started, Pid}} -> Pid
     end,
-    SourceName = "echo",
     SourcePid = case lifeguard_ds_echo:start_link(SourceName, []) of
         {ok, Pid2} -> Pid2;
         {error, {already_started, Pid2}} -> Pid2
@@ -40,6 +41,9 @@ teardown(#test_state{manager=ManagerPid, source_pid=SourcePid}) ->
     % Cleanup the source
     unlink(SourcePid),
     exit(SourcePid, normal).
+
+test_list(#test_state{source_name=SourceName}) ->
+    fun() -> {ok, [SourceName]} = ?TEST_MODULE:list() end.
 
 test_call_bad_source(_State) ->
     fun() -> {error, no_data_source} = ?TEST_MODULE:get("this_is_a_bad_name", []) end.

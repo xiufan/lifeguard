@@ -1,22 +1,37 @@
 -module(lifeguard_ds_manager).
 -behavior(gen_server).
--export([start_link/0, get/2]).
+-export([start_link/1,
+         get/2,
+        list/0]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
+-record(state, {
+        data_sources % List of available data source names
+        }).
+
 %% @doc Start the data source manager.
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+start_link(DataSources) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [DataSources], []).
 
 %% @doc Get data from a data source.
 -spec get(string(), [term()]) -> {ok, term()} | {error, term()}.
 get(SourceName, Args) ->
     gen_server:call(?MODULE, {get, SourceName, Args}).
 
+%% @doc List all the available data sources.
+-spec list() -> {ok, [string()]}.
+list() ->
+    gen_server:call(?MODULE, list).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% gen_server callbacks
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-init(_Args) -> {ok, no_state}.
+init([DataSources]) ->
+    {ok, #state{data_sources=DataSources}}.
+
+handle_call(list, _From, State) ->
+    {reply, {ok, State#state.data_sources}, State};
 
 handle_call({get, SourceName, Args}, _From, State) ->
     % Get the atom that would represent the locally registered name
