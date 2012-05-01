@@ -40,6 +40,8 @@ ul#data-sources-list, ul#data-sources-list li {
 }
 
 #data-sources-list .unit .console .results {
+    max-height: 150px;
+    overflow: scroll;
     width: 100%;
 }
 
