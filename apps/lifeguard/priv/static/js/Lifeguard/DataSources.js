@@ -3,6 +3,28 @@ var DataSource = Backbone.Model.extend({
 
     defaults: {
         "name": "<UNKNOWN>"
+    },
+
+    /**
+     * Gets data for this data source from the server.
+     * */
+    getData: function(options) {
+        // Default options
+        options = _.defaults(options, {
+            args: [],
+            onSuccess: function(x) {},
+            onFailure: function(x) {}
+        });
+
+        // Make the request to the server
+        args = JSON.stringify(options.args);
+        dbg.info("Requesting data for " + this.get("name") + ": " + args);
+        new Request.JSON({
+            method: "get",
+            url: this.url(),
+            onSuccess: options.onSuccess,
+            onFailure: options.onFailure
+        }).get({ "args": args });
     }
 });
 
@@ -23,6 +45,11 @@ var DataSourceView = Backbone.View.extend({
     tagName: "li",
     template: _.template(document.id("data-source-template").get("html")),
 
+    events: {
+        "click .name": "toggleConsole",
+        "submit .console form": "testGet"
+    },
+
     initialize: function() {
         this.model.on("change", this.render, this);
         this.model.on("destroy", this.remove, this);
@@ -30,7 +57,45 @@ var DataSourceView = Backbone.View.extend({
 
     render: function() {
         this.$el.html(this.template(this.model.toJSON()));
+        this.$el[0].getElement(".console").setStyle("display", "none");
         return this;
+    },
+
+    testGet: function(raw_event) {
+        // Wrap up the event in a Moo object and prevent default behavior
+        var event = new DOMEvent(raw_event);
+        event.preventDefault();
+
+        // Get the arguments
+        var console = this.$el[0].getElement(".console");
+        var args = console.getElement("input[name=args]").value;
+        if (args !== "")
+            args = JSON.parse(args);
+
+        // The results container
+        var pre = this.$el[0].getElement("pre.results");
+
+        // Make the actual request
+        this.model.getData({
+            args: args,
+            onSuccess: function(data) {
+                // Convert the data to JSON again so we can pretty-print it
+                var pretty = JSON.stringify(data, undefined, 2);
+
+                // Put the result into the results pre
+                pre.set("html", pretty);
+            }
+        });
+    },
+
+    toggleConsole: function() {
+        var console = this.$el[0].getElement(".console");
+
+        if (console.getStyle("display") == "none") {
+            console.setStyle("display", "block");
+        } else {
+            console.setStyle("display", "none");
+        }
     }
 });
 

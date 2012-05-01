@@ -28,7 +28,25 @@
 {% block js_templates %}
 <script type="text/template" id="data-source-template">
 <div class="unit">
-	<%= name %>
+	<div class="name">
+		<%= name %>
+	</div>
+
+	<div class="console">
+		<div class="row">
+			<div class="span4">
+				<form>
+					<label>Arguments as a JSON Array:</label>
+					<input type="text" name="args" class="span3" placeholder='[10, "foo"]' />
+					<div><button type="submit" class="btn">Go</button></div>
+				</form>
+			</div>
+
+			<div class="span4">
+				<pre class="results"></pre>
+			</div>
+		</div>
+	</div>
 </div>
 </script>
 {% endblock %}
